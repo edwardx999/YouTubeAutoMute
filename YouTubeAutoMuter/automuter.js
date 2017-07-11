@@ -1,25 +1,11 @@
-var adPlace = document.querySelector(".video-ads");
-var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
-var observer = new MutationObserver(
-		function (mutations) {
-		if (videoPage) {
-			console.log("d");
-			autoSkip();
-			autoMute();
-		}
-	});
-observer.observe(adPlace, {
-	subtree: true,
-	childList: true
-});
 var videoPage = true;
-/*setInterval(function () {
+setInterval(function () {
 if (videoPage) {
 console.log("d");
 autoSkip();
 autoMute();
 }
-}, 500);*/
+}, 500);
 
 setInterval(function () {
 	videoPage = isThisAVideo();
