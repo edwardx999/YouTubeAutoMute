@@ -1,17 +1,40 @@
-var videoPage = true;
-setInterval(function () {
-if (videoPage) {
-console.log("d");
-autoSkip();
-autoMute();
-}
-}, 500);
+console.log("Loaded");
+var adPlace = document.querySelector(".video-ads");
+console.log(adPlace);
+var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+
+var observer = new MutationObserver(
+		function () {
+		console.log("Something Observed");
+		autoSkip();
+		autoMute();
+	});
 
 setInterval(function () {
-	videoPage = isThisAVideo();
+	//console.log("Polling");
+	if (pageChanged()) {
+		//console.log("Change");
+		observer.disconnect();
+		if (thisIsAVideo()) {
+			//console.log("Restarting Observer");
+			adPlace = document.querySelector(".video-ads");
+			if (adPlace) {
+				observer.observe(adPlace, {
+					subtree: true,
+					childList: true
+				});
+			}
+		}
+	}
 }, 700);
 
-function isThisAVideo() {
+var URL = window.location.href;
+function pageChanged() {
+	var before = URL;
+	return (URL = window.location.href) != before;
+}
+
+function thisIsAVideo() {
 	return window.location.href.indexOf("watch?v") > -1;
 }
 
