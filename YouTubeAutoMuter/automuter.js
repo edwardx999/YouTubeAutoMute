@@ -21,24 +21,38 @@ if(thisIsAVideo()) {
     }
 }
 
+var tryAgain=false;
 setInterval(function() {
     //console.log("Polling");
     if(pageChanged()) {
+        console.log("");
         console.log("Change");
         adObserver.disconnect();
         if(thisIsAVideo()) {
-            adPlace=document.querySelector(".video-ads");
-            if(adPlace!=null) {
-                console.log("Restarting Observer");
-                adObserver.observe(adPlace,{
-                    subtree: true,
-                    childList: true
-                });
-            }
+            console.log("Video Spotted");
+            tryAgain=!restartObserver();
         }
     }
-},300);
+    else if(tryAgain) {
+        tryAgain=false;
+        adObserver.disconnect();
+        restartObserver();
+    }
+},700);
 
+function restartObserver() {
+    adPlace=document.querySelector(".video-ads");
+    if(adPlace!=null) {
+        console.log("Restarting Observer");
+        adObserver.observe(adPlace,{
+            subtree: true,
+            childList: true
+        });
+        return true;
+    }
+    console.log("Failed to find adPlace");
+    return false;
+}
 var URL=window.location.href;
 function pageChanged() {
     var before=URL;
