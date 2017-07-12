@@ -11,7 +11,7 @@ var observer = new MutationObserver(
 	});
 	
 if (thisIsAVideo()) {
-	console.log("Starting Observer");
+	//console.log("Starting Observer");
 	adPlace = document.querySelector(".video-ads");
 	if (adPlace) {
 		observer.observe(adPlace, {
@@ -27,7 +27,7 @@ setInterval(function () {
 		//console.log("Change");
 		observer.disconnect();
 		if (thisIsAVideo()) {
-			console.log("Restarting Observer");
+			//console.log("Restarting Observer");
 			adPlace = document.querySelector(".video-ads");
 			if (adPlace) {
 				observer.observe(adPlace, {
