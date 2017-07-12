@@ -9,6 +9,17 @@ var observer = new MutationObserver(
 		autoSkip();
 		autoMute();
 	});
+	
+if (thisIsAVideo()) {
+	console.log("Starting Observer");
+	adPlace = document.querySelector(".video-ads");
+	if (adPlace) {
+		observer.observe(adPlace, {
+			subtree: true,
+			childList: true
+		});
+	}
+}
 
 setInterval(function () {
 	//console.log("Polling");
@@ -16,7 +27,7 @@ setInterval(function () {
 		//console.log("Change");
 		observer.disconnect();
 		if (thisIsAVideo()) {
-			//console.log("Restarting Observer");
+			console.log("Restarting Observer");
 			adPlace = document.querySelector(".video-ads");
 			if (adPlace) {
 				observer.observe(adPlace, {
@@ -76,4 +87,7 @@ function autoSkip() {
 	var skipButtons = document.getElementsByClassName("videoAdUiSkipButton videoAdUiAction videoAdUiFixedPaddingSkipButton");
 	if (0 < skipButtons.length)
 		skipButtons[0].click();
+	var closeBanner = document.getElementsByClassName("close-button");
+	if (0 < closeBanner.length)
+		closeBanner[0].click();
 }
