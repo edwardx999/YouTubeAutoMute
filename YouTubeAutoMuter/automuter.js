@@ -27,9 +27,9 @@ setInterval(function() {
         console.log("Change");
         adObserver.disconnect();
         if(thisIsAVideo()) {
-            console.log("Restarting Observer");
             adPlace=document.querySelector(".video-ads");
-            if(adPlace) {
+            if(adPlace!=null) {
+                console.log("Restarting Observer");
                 adObserver.observe(adPlace,{
                     subtree: true,
                     childList: true
