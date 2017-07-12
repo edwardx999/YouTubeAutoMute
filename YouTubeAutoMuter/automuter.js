@@ -1,6 +1,6 @@
-console.log("Loaded");
+//console.log("Loaded");
 var adPlace = document.querySelector(".video-ads");
-console.log(adPlace);
+//console.log(adPlace);
 var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
 
 var observer = new MutationObserver(
