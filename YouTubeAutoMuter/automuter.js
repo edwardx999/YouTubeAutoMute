@@ -91,7 +91,7 @@ function thisIsAVideo() {
 }
 
 var shouldItBeMuted = false;
-/*chrome.storage.local.get("shouldItBeMuted", function (result) {
+chrome.storage.local.get("shouldItBeMuted", function (result) {
 var res = result.shouldItBeMuted;
 if (typeof res === "undefined") {
 shouldItBeMuted = false;
@@ -99,8 +99,8 @@ shouldItBeMuted = false;
 shouldItBeMuted = res;
 }
 //console.log(res);
-//console.log(shouldItBeMuted);
-});*/
+console.log(shouldItBeMuted);
+});
 //if(shouldItBeMuted==null) shouldItBeMuted=false;
 //console.log(shouldItBeMuted);
 
@@ -108,27 +108,27 @@ function isMuted() {
 	var volumeControls = player.getElementsByClassName("ytp-volume-panel");
 	if (0 < volumeControls.length)
 		return -1 < volumeControls[0].getAttribute("aria-valuetext").indexOf("muted");
-	//console.log("Failed to find volume controls");
+	console.log("Failed to find volume controls");
 	return true;
 }
 
 function clickMuteButton() {
-	//console.log("Clicking Mute Button");
+	console.log("Clicking Mute Button");
 	var muteButtons = player.getElementsByClassName("ytp-mute-button ytp-button");
 	if (0 < muteButtons.length) {
 		document.getElementsByClassName("ytp-mute-button ytp-button")[0].click();
 		shouldItBeMuted = !shouldItBeMuted;
-		/*chrome.storage.local.set({
+		chrome.storage.local.set({
 		"shouldItBeMuted": shouldItBeMuted
 		}, function () {
-		console.log("Local set " + shouldItBeMuted);
-		});*/
+		//console.log("Local set " + shouldItBeMuted);
+		});
 	} else
 		console.log("Failed to find mute button");
 }
 
 function isAdPlaying() {
-	return player.getAttribute("class").indexOf("ad-show")>-1;
+	return player.getAttribute("class").indexOf("ad-int")>-1;
 }
 
 function autoMute() {
@@ -144,6 +144,9 @@ function autoMute() {
 
 function autoSkip() {
 	var skipButtons = player.getElementsByClassName("videoAdUiSkipButton videoAdUiAction videoAdUiFixedPaddingSkipButton");
+	if (0 < skipButtons.length)
+		skipButtons[0].click();
+	skipButtons=player.getElementsByClassName("ytp-ad-skip-button ytp-button");
 	if (0 < skipButtons.length)
 		skipButtons[0].click();
 	var closeBanner = player.getElementsByClassName("close-button");
