@@ -9,19 +9,30 @@ var pages = {
 //console.log(adPlace);
 var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
 
+function doAuto() {
+	autoMute();
+	autoSkip();
+	autoPause();
+}
+
 var adObserver = new MutationObserver(
 		function () {
-		console.log("Ad Change Observed");
-		autoSkip();
-		autoMute();
+		//console.log("Change Observed");
+		doAuto();
 	});
 
-var pollingInterval = 700;
-var maxAttempts = 3;
+var pollingInterval = 600;
+var maxAttempts = 10;
 var tryAgain = 0;
 var doubleCheckPage = true;
 var pageType = pages.NOVIDEO;
 var player;
+var muteButton;
+var pauseButton;
+var volumeControls;
+var adPlace;
+var prepause = false;
+
 setInterval(function () {
 	//console.log("Polling");
 	if (doubleCheckPage) {
@@ -40,44 +51,66 @@ setInterval(function () {
 
 function pageResponse() {
 	console.log("");
-	console.log("Change");
+	//console.log("Change");
 	adObserver.disconnect();
 	if (pageType = thisIsAVideo()) {
-		console.log("Video Spotted");
+		//console.log("Video Spotted");
 		tryAgain = (restartObserver()) ? 0 : maxAttempts;
 	}
 }
+
 function restartObserver() {
 	switch (pageType) {
-		case pages.WATCH:
-			player = document.getElementById("movie_player");
-			break;
-		case pages.CHANNEL:
-			player = document.getElementById("c4-player");
-			break;
-		default:
-			return;
+	case pages.WATCH:
+		player = document.getElementById("movie_player");
+		break;
+	case pages.CHANNEL:
+		player = document.getElementById("c4-player");
+		break;
+	default:
+		return false;
 	}
+
 	//console.log(player);
-	//adPlace = player;//.getElementsByClassName("video-ads ytp-ad-module")[0];
-	if (player != null) {
-		console.log("Restarting Observer");
-		adObserver.observe(player, {
-			attributes: true,
-			characterData: true,
-			subtree: false,
-			childList: false
-		});
-		autoMute();
-		return true;
+	if (player == null) {
+		console.log("Failed to find player");
+		return false;
 	}
-	console.log("Failed to find adPlace");
-	return false;
+	console.log("Restarting Observer");
+	adPlace = player.getElementsByClassName("video-ads")[0];
+	pauseButton = player.getElementsByClassName("ytp-play-button")[0];
+	muteButton = player.getElementsByClassName("ytp-mute-button")[0];
+	volumeControls = player.getElementsByClassName("ytp-volume-panel")[0];
+	//console.log(adPlace);
+	//console.log(pauseButton);
+	//console.log(muteButton);
+	//console.log(volumeControls);
+	if (pauseButton == null || muteButton == null || volumeControls == null || adPlace == null) {
+		return false;
+	}
+	adObserver.observe(adPlace, {
+		attributes: false,
+		characterData: false,
+		subtree: true,
+		childList: true
+	});
+	adObserver.observe(player, {
+		attributes: true,
+		characterData: true,
+		subtree: false,
+		childList: false
+	});
+	doAuto();
+	return true;
 }
-var URL = window.location.href;
+
+var URL = "";
 function pageChanged() {
-	var before = URL;
-	return (URL = window.location.href) != before;
+	if (URL === window.location.href) {
+		return false;
+	}
+	URL = window.location.href;
+	return true;
 }
 
 function thisIsAVideo() {
@@ -92,64 +125,87 @@ function thisIsAVideo() {
 
 var shouldItBeMuted = false;
 chrome.storage.local.get("shouldItBeMuted", function (result) {
-var res = result.shouldItBeMuted;
-if (typeof res === "undefined") {
-shouldItBeMuted = false;
-} else {
-shouldItBeMuted = res;
-}
-//console.log(res);
-console.log(shouldItBeMuted);
+	var res = result.shouldItBeMuted;
+	if (typeof res === "undefined") {
+		shouldItBeMuted = false;
+	} else {
+		shouldItBeMuted = res;
+	}
+	//console.log(res);
+	console.log(shouldItBeMuted);
 });
 //if(shouldItBeMuted==null) shouldItBeMuted=false;
 //console.log(shouldItBeMuted);
 
 function isMuted() {
-	var volumeControls = player.getElementsByClassName("ytp-volume-panel");
-	if (0 < volumeControls.length)
-		return -1 < volumeControls[0].getAttribute("aria-valuetext").indexOf("muted");
+	return -1 < volumeControls.getAttribute("aria-valuetext").indexOf("muted");
 	console.log("Failed to find volume controls");
 	return true;
 }
 
 function clickMuteButton() {
-	console.log("Clicking Mute Button");
-	var muteButtons = player.getElementsByClassName("ytp-mute-button ytp-button");
-	if (0 < muteButtons.length) {
-		document.getElementsByClassName("ytp-mute-button ytp-button")[0].click();
-		shouldItBeMuted = !shouldItBeMuted;
-		chrome.storage.local.set({
+	//console.log("Clicking Mute Button");
+	muteButton.click();
+	shouldItBeMuted = !shouldItBeMuted;
+	chrome.storage.local.set({
 		"shouldItBeMuted": shouldItBeMuted
-		}, function () {
+	}, function () {
 		//console.log("Local set " + shouldItBeMuted);
-		});
-	} else
-		console.log("Failed to find mute button");
+	});
 }
 
 function isAdPlaying() {
-	return player.getAttribute("class").indexOf("ad-int")>-1;
+	return player.getAttribute("class").indexOf("ad-int") > -1;
 }
 
 function autoMute() {
-	if (shouldItBeMuted === isMuted()) {
-		if (isAdPlaying()) {
-			//console.log("Ad is Playing");
-			if (!isMuted())
-				clickMuteButton();
-		} else if (isMuted())
+	if (isAdPlaying()) {
+		if (!isMuted())
+			clickMuteButton();
+	} else if (shouldItBeMuted === isMuted()) {
+		if (isMuted())
 			clickMuteButton();
 	}
 }
 
 function autoSkip() {
-	var skipButtons = player.getElementsByClassName("videoAdUiSkipButton videoAdUiAction videoAdUiFixedPaddingSkipButton");
+	var skipButtons = player.getElementsByClassName("videoAdUiSkipButton");
 	if (0 < skipButtons.length)
 		skipButtons[0].click();
-	skipButtons=player.getElementsByClassName("ytp-ad-skip-button ytp-button");
-	if (0 < skipButtons.length)
-		skipButtons[0].click();
+	else {
+		skipButtons = player.getElementsByClassName("ytp-ad-skip-button ytp-button");
+		if (0 < skipButtons.length)
+			skipButtons[0].click();
+	}
 	var closeBanner = player.getElementsByClassName("close-button");
 	if (0 < closeBanner.length)
 		closeBanner[0].click();
+	else {
+		closeBanner = player.getElementsByClassName("ytp-ad-close-button");
+		if (0 < closeBanner.length)
+			closeBanner[0].click();
+	}
 }
+
+function isVideoPaused() {
+	return player.getAttribute("class").indexOf("pause") > -1;
+}
+
+function autoPause() {
+	if (isAdPlaying()) {
+		if (isVideoPaused() && !prepause) {
+			console.log("hi1");
+			prepause = true;
+			clickPauseButton();
+		}
+	} else if (prepause) {
+		setTimeout(clickPauseButton,10);
+		prepause = false;
+	}
+}
+
+function clickPauseButton() {
+	console.log("Clicking Pause Button")
+	pauseButton.click();
+}
+
