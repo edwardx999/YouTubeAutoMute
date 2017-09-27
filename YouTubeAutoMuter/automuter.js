@@ -50,7 +50,7 @@ setInterval(function () {
 }, pollingInterval);
 
 function pageResponse() {
-	console.log("");
+	//console.log("");
 	//console.log("Change");
 	adObserver.disconnect();
 	if (pageType = thisIsAVideo()) {
@@ -77,17 +77,22 @@ function restartObserver() {
 		return false;
 	}
 	console.log("Restarting Observer");
-	adPlace = player.getElementsByClassName("video-ads")[0];
-	pauseButton = player.getElementsByClassName("ytp-play-button")[0];
-	muteButton = player.getElementsByClassName("ytp-mute-button")[0];
-	volumeControls = player.getElementsByClassName("ytp-volume-panel")[0];
+	if((adPlace = player.getElementsByClassName("video-ads")[0]) == null){
+		return false;
+	}
+	if((pauseButton = player.getElementsByClassName("ytp-play-button")[0]) == null){
+		return false;
+	}
+	if((muteButton = player.getElementsByClassName("ytp-mute-button")[0]) == null){
+		return false;
+	}
+	if((volumeControls = player.getElementsByClassName("ytp-volume-panel")[0]) == null){
+		return false;
+	}
 	//console.log(adPlace);
 	//console.log(pauseButton);
 	//console.log(muteButton);
 	//console.log(volumeControls);
-	if (pauseButton == null || muteButton == null || volumeControls == null || adPlace == null) {
-		return false;
-	}
 	adObserver.observe(adPlace, {
 		attributes: false,
 		characterData: false,
@@ -132,15 +137,13 @@ chrome.storage.local.get("shouldItBeMuted", function (result) {
 		shouldItBeMuted = res;
 	}
 	//console.log(res);
-	console.log(shouldItBeMuted);
+	//console.log(shouldItBeMuted);
 });
 //if(shouldItBeMuted==null) shouldItBeMuted=false;
 //console.log(shouldItBeMuted);
 
 function isMuted() {
 	return -1 < volumeControls.getAttribute("aria-valuetext").indexOf("muted");
-	console.log("Failed to find volume controls");
-	return true;
 }
 
 function clickMuteButton() {
@@ -194,7 +197,7 @@ function isVideoPaused() {
 function autoPause() {
 	if (isAdPlaying()) {
 		if (isVideoPaused() && !prepause) {
-			console.log("hi1");
+			//console.log("hi1");
 			prepause = true;
 			clickPauseButton();
 		}
@@ -205,7 +208,7 @@ function autoPause() {
 }
 
 function clickPauseButton() {
-	console.log("Clicking Pause Button")
+	//console.log("Clicking Pause Button")
 	pauseButton.click();
 }
 
