@@ -15,11 +15,7 @@ function doAuto() {
 	autoPause();
 }
 
-var adObserver = new MutationObserver(
-		function () {
-		//console.log("Change Observed");
-		doAuto();
-	});
+var adObserver = new MutationObserver(doAuto);
 
 var pollingInterval = 600;
 var maxAttempts = 10;
@@ -53,7 +49,7 @@ function pageResponse() {
 	//console.log("");
 	//console.log("Change");
 	adObserver.disconnect();
-	if (pageType = thisIsAVideo()) {
+	if (pageType = isThisAVideo()) {
 		//console.log("Video Spotted");
 		tryAgain = (restartObserver()) ? 0 : maxAttempts;
 	}
@@ -77,18 +73,13 @@ function restartObserver() {
 		return false;
 	}
 	console.log("Restarting Observer");
-	if((adPlace = player.getElementsByClassName("video-ads")[0]) == null){
+	if ((adPlace = player.getElementsByClassName("video-ads")[0]) == null ||
+		(pauseButton = player.getElementsByClassName("ytp-play-button")[0]) == null ||
+		(muteButton = player.getElementsByClassName("ytp-mute-button")[0]) == null ||
+		(volumeControls = player.getElementsByClassName("ytp-volume-panel")[0]) == null) {
 		return false;
 	}
-	if((pauseButton = player.getElementsByClassName("ytp-play-button")[0]) == null){
-		return false;
-	}
-	if((muteButton = player.getElementsByClassName("ytp-mute-button")[0]) == null){
-		return false;
-	}
-	if((volumeControls = player.getElementsByClassName("ytp-volume-panel")[0]) == null){
-		return false;
-	}
+
 	//console.log(adPlace);
 	//console.log(pauseButton);
 	//console.log(muteButton);
@@ -118,8 +109,8 @@ function pageChanged() {
 	return true;
 }
 
-function thisIsAVideo() {
-	if (-1 < window.location.href.indexOf("watch?v"))
+function isThisAVideo() {
+	if (-1 < window.location.href.indexOf("watch?"))
 		return pages.WATCH;
 	if (-1 < window.location.href.indexOf("channel") && document.getElementById("c4-player") != null)
 		return pages.CHANNEL;
@@ -172,19 +163,19 @@ function autoMute() {
 }
 
 function autoSkip() {
-	var skipButtons = player.getElementsByClassName("videoAdUiSkipButton");
+	var skipButtons = adPlace.getElementsByClassName("videoAdUiSkipButton");
 	if (0 < skipButtons.length)
 		skipButtons[0].click();
 	else {
-		skipButtons = player.getElementsByClassName("ytp-ad-skip-button ytp-button");
+		skipButtons = adPlace.getElementsByClassName("ytp-ad-skip-button ytp-button");
 		if (0 < skipButtons.length)
 			skipButtons[0].click();
 	}
-	var closeBanner = player.getElementsByClassName("close-button");
+	var closeBanner = adPlace.getElementsByClassName("close-button");
 	if (0 < closeBanner.length)
 		closeBanner[0].click();
 	else {
-		closeBanner = player.getElementsByClassName("ytp-ad-close-button");
+		closeBanner = adPlace.getElementsByClassName("ytp-ad-close-button");
 		if (0 < closeBanner.length)
 			closeBanner[0].click();
 	}
@@ -196,13 +187,14 @@ function isVideoPaused() {
 
 function autoPause() {
 	if (isAdPlaying()) {
-		if (isVideoPaused() && !prepause) {
-			//console.log("hi1");
-			prepause = true;
-			clickPauseButton();
+		if (isVideoPaused()) {
+			if (!prepause) {
+				prepause = true;
+				clickPauseButton();
+			}
 		}
 	} else if (prepause) {
-		setTimeout(clickPauseButton,10);
+		setTimeout(clickPauseButton, 10);
 		prepause = false;
 	}
 }
@@ -211,4 +203,3 @@ function clickPauseButton() {
 	//console.log("Clicking Pause Button")
 	pauseButton.click();
 }
-
