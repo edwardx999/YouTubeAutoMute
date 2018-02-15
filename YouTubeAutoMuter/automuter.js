@@ -1,5 +1,5 @@
 console.log("AutoMuter Loaded");
-var pages = {
+const pages = {
 	NOVIDEO: 0,
 	WATCH: 1,
 	CHANNEL: 2,
@@ -10,15 +10,16 @@ var pages = {
 var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
 
 function doAuto() {
+	console.log("Event detected");
 	autoMute();
 	autoSkip();
 	autoPause();
 }
 
-var adObserver = new MutationObserver(doAuto);
+const adObserver = new MutationObserver(doAuto);
 
-var pollingInterval = 600;
-var maxAttempts = 10;
+const pollingInterval = 600;
+const maxAttempts = 10;
 var tryAgain = 0;
 var doubleCheckPage = true;
 var pageType = pages.NOVIDEO;
@@ -90,12 +91,12 @@ function restartObserver() {
 		subtree: true,
 		childList: true
 	});
-	adObserver.observe(player, {
+	/*adObserver.observe(player, {
 		attributes: true,
 		characterData: true,
 		subtree: false,
 		childList: false
-	});
+	});*/
 	doAuto();
 	return true;
 }
