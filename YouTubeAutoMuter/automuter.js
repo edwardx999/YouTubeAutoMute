@@ -13,7 +13,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 console.log("AutoMuter Loaded");
 const pages = {
 	NOVIDEO: 0,
@@ -108,10 +108,10 @@ function restartObserver() {
 		childList: true
 	});
 	/*adObserver.observe(player, {
-		attributes: true,
-		characterData: true,
-		subtree: false,
-		childList: false
+	attributes: true,
+	characterData: true,
+	subtree: false,
+	childList: false
 	});*/
 	doAuto();
 	return true;
@@ -180,22 +180,21 @@ function autoMute() {
 }
 
 function autoSkip() {
-	var skipButtons = adPlace.getElementsByClassName("videoAdUiSkipButton");
-	if (0 < skipButtons.length)
-		skipButtons[0].click();
-	else {
-		skipButtons = adPlace.getElementsByClassName("ytp-ad-skip-button ytp-button");
-		if (0 < skipButtons.length)
-			skipButtons[0].click();
+	function press(name) {
+		var b = adPlace.getElementsByClassName(name);
+		if (0 < b.length) {
+			b[0].click();
+			return true;
+		}
+		return false;
 	}
-	var closeBanner = adPlace.getElementsByClassName("close-button");
-	if (0 < closeBanner.length)
-		closeBanner[0].click();
-	else {
-		closeBanner = adPlace.getElementsByClassName("ytp-ad-close-button");
-		if (0 < closeBanner.length)
-			closeBanner[0].click();
-	}
+	
+	if (press("videoAdUiSkipButton"));
+	else if (press("ytp-ad-skip-button ytp-button"));
+
+	if (press("close-button"));
+	else if (press("ytp-ad-close-button"));
+	else if (press("svg-close-button"));
 }
 
 function isVideoPaused() {
