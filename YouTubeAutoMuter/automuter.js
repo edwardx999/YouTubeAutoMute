@@ -184,17 +184,17 @@ function autoSkip() {
 	if(ads.length){
 		ads[0].remove();
 	}	
-	// function press(name) {
-		// var b = adPlace.getElementsByClassName(name);
-		// if (0 < b.length) {
-			// b[0].click();
-			// return true;
-		// }
-		// return false;
-	// }
+	function press(name) {
+		var b = adPlace.getElementsByClassName(name);
+		if (0 < b.length) {
+			b[0].click();
+			return true;
+		}
+		return false;
+	}
 	
-	// if (press("videoAdUiSkipButton"));
-	// else if (press("ytp-ad-skip-button ytp-button"));
+	if (press("videoAdUiSkipButton"));
+	else if (press("ytp-ad-skip-button ytp-button"));
 
 	// if (press("close-button"));
 	// else if (press("ytp-ad-close-button"));
