@@ -131,7 +131,7 @@ function isThisAVideo() {
 		return pages.WATCH;
 	if (-1 < window.location.href.indexOf("channel") && document.getElementById("c4-player") != null)
 		return pages.CHANNEL;
-	if (0 < document.getElementsByClassName("html5-video-container").length)
+	if (document.getElementsByClassName("html5-video-container").length)
 		return pages.UNKNOWN;
 	return pages.NOVIDEO;
 }
@@ -186,15 +186,16 @@ function autoSkip() {
 	}	
 	function press(name) {
 		var b = adPlace.getElementsByClassName(name);
-		if (0 < b.length) {
+		if (b.length) {
 			b[0].click();
 			return true;
 		}
 		return false;
 	}
 	
-	if (press("videoAdUiSkipButton"));
+	if (press("ytp-ad-overlay-close-button"));
 	else if (press("ytp-ad-skip-button ytp-button"));
+	else if (press("videoAdUiSkipButton"));
 
 	// if (press("close-button"));
 	// else if (press("ytp-ad-close-button"));
