@@ -1,5 +1,5 @@
 /*
-Copyright(C) 2017 Edward Xie
+Copyright(C) 2017-2019 Edward Xie
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ function doAuto() {
 const adObserver = new MutationObserver(doAuto);
 
 const pollingInterval = 600;
-const maxAttempts = 10;
+const maxAttempts = 20;
 var tryAgain = 0;
 var doubleCheckPage = true;
 var pageType = pages.NOVIDEO;
@@ -46,42 +46,36 @@ var volumeControls;
 var adPlace;
 var prepause = false;
 
-setInterval(function () {
-	//console.log("Polling");
-	if (doubleCheckPage) {
-		pageResponse();
-		doubleCheckPage = false;
-	} else if (pageChanged()) {
-		pageResponse();
-		doubleCheckPage = true;
-	} else if (tryAgain > 0) {
-		--tryAgain;
-		adObserver.disconnect();
-		if (restartObserver())
-			tryAgain = 0;
-	}
-}, pollingInterval);
+chrome.runtime.onMessage.addListener(
+	function (request, sender, sendResponse) {
+		if (request === "automutepageupdate") {
+			console.log("page update");
+			pageResponse();
+		}
+	});
 
 function pageResponse() {
 	//console.log("");
 	//console.log("Change");
 	adObserver.disconnect();
 	if (pageType = isThisAVideo()) {
-		//console.log("Video Spotted");
-		tryAgain = (restartObserver()) ? 0 : maxAttempts;
+		let i = 0;
+		if (restartObserver()) return;
+		let func = () => { if (!restartObserver() && ++i < maxAttempts) setTimeout(func, 50); };
+		func();
 	}
 }
 
 function restartObserver() {
 	switch (pageType) {
-	case pages.WATCH:
-		player = document.getElementById("movie_player");
-		break;
-	case pages.CHANNEL:
-		player = document.getElementById("c4-player");
-		break;
-	default:
-		return false;
+		case pages.WATCH:
+			player = document.getElementById("movie_player");
+			break;
+		case pages.CHANNEL:
+			player = document.getElementById("c4-player");
+			break;
+		default:
+			return false;
 	}
 
 	//console.log(player);
@@ -114,15 +108,6 @@ function restartObserver() {
 	childList: false
 	});*/
 	doAuto();
-	return true;
-}
-
-var URL = "";
-function pageChanged() {
-	if (URL === window.location.href) {
-		return false;
-	}
-	URL = window.location.href;
 	return true;
 }
 
@@ -180,10 +165,10 @@ function autoMute() {
 }
 
 function autoSkip() {
-	var ads=adPlace.getElementsByClassName("adDisplay");
-	if(ads.length){
+	var ads = adPlace.getElementsByClassName("adDisplay");
+	if (ads.length) {
 		ads[0].remove();
-	}	
+	}
 	function press(name) {
 		var b = adPlace.getElementsByClassName(name);
 		if (b.length) {
@@ -192,7 +177,7 @@ function autoSkip() {
 		}
 		return false;
 	}
-	
+
 	if (press("ytp-ad-overlay-close-button"));
 	else if (press("ytp-ad-skip-button ytp-button"));
 	else if (press("videoAdUiSkipButton"));

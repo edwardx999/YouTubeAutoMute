@@ -1,5 +1,5 @@
 /*
-Copyright(C) 2017 Edward Xie
+Copyright(C) 2017-2019 Edward Xie
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -25,12 +25,16 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 			"js": ["automuter.js"]
 		}
 	],
+	"background": {
+		"scripts": ["page_change.js"]
+	},
 	"icons": {
 		"128": "./img/icon128.png",
 		"16": "./img/icon16.png",
 		"48": "./img/icon48.png"
 	},
 	"permissions": [
-		"storage"
+		"storage",
+		"tabs"
 	]
 }
