@@ -1,5 +1,5 @@
 /*
-Copyright(C) 2017-2019 Edward Xie
+Copyright(C) 2017-2020 Edward Xie
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -15,36 +15,134 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 console.log("AutoMuter Loaded");
-const pages = {
-	NOVIDEO: 0,
-	WATCH: 1,
-	CHANNEL: 2,
-	UNKNOWN: -1
+const MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+
+class PlayerObserver {
+	constructor(player) {
+		this.player = player;
+		this.ads = player.getElementsByClassName("video-ads")[0];
+		if (!this.ads) {
+			throw "No ads found";
+		}
+		this.muteButton = player.getElementsByClassName("ytp-mute-button")[0];
+		if (!this.muteButton) {
+			throw "No mute button found";
+		}
+		this.playButton = player.getElementsByClassName("ytp-play-button")[0];
+		if (!this.muteButton) {
+			throw "No play button found";
+		}
+		this.prepause = false
+		this.observer = null;
+		this.wasAdPlaying = false;
+	}
+	isAdPlaying() {
+		return this.player.getAttribute("class").indexOf("ad-int") > -1;
+	}
+	isPaused() {
+		return this.player.getAttribute("class").indexOf("paused-mode") > -1;
+	}
+	isMuted() {
+		return this.muteButton.getAttribute("title").indexOf("Unmute") > -1
+	}
+	clickPlayButton() {
+		this.playButton.click();
+	}
+	play() {
+		if (this.isPaused()) {
+			clickPlayButton();
+		}
+	}
+	pause() {
+		if (!this.isPaused()) {
+			clickPlayButton();
+		}
+	}
+	clickMuteButton() {
+		this.muteButton.click()
+	}
+	mute() {
+		if (!this.isMuted()) {
+			this.clickMuteButton()
+		}
+	}
+	unmute() {
+		if (this.isMuted()) {
+			this.clickMuteButton();
+		}
+	}
+	autoEvents() {
+		console.log("Event detected");
+		this.autoMute();
+		this.autoSkip();
+		this.autoPause();
+	}
+	autoMute() {
+		const wasAdPlaying = this.wasAdPlaying;
+		const isAdPlaying = this.wasAdPlaying = this.isAdPlaying();
+		if (wasAdPlaying) {
+			if (!isAdPlaying) {
+				this.unmute();
+			}
+		}
+		else if(isAdPlaying) {
+			this.mute()
+		}
+	}
+	autoSkip() {
+		const press = (name) => {
+			const b = this.ads.getElementsByClassName(name);
+			if (b.length) {
+				b[0].click();
+				return true;
+			}
+			return false;
+		}
+		if (press("ytp-ad-skip-button"));
+		else if (press("ytp-ad-overlay-close-button"));
+		// else if (press("videoAdUiSkipButton"));
+	}
+	autoPause() {
+		if (this.isAdPlaying()) {
+			if (this.isPaused()) {
+				if (!this.prepause) {
+					this.prepause = true;
+					this.play()
+				}
+			}
+		} else if (this.prepause) {
+			setTimeout(() => { this.pause() }, 10);
+			this.prepause = false;
+		}
+	}
+	createObserver() {
+		const observer = this.observer = new MutationObserver(() => { this.autoEvents(); });
+		observer.observe(this.ads, {
+			attributes: false,
+			characterData: false,
+			subtree: true,
+			childList: true
+		});
+	}
+	killObserver() {
+		this.observer.disconnect();
+		this.observer = null;
+	}
 };
-//var adPlace;// = document.querySelector(".video-ads");
-//console.log(adPlace);
-var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
 
-function doAuto() {
-	console.log("Event detected");
-	autoMute();
-	autoSkip();
-	autoPause();
+const pollingInterval = 50;
+const pollingIncrease = 40;
+var pollingTime = pollingInterval;
+const maxAttempts = 100;
+var players = [];
+function playerFound(player) {
+	for (let i = 0; i < players.length; ++i) {
+		if (players[i].player === player) {
+			return true;
+		}
+	}
+	return false;
 }
-
-const adObserver = new MutationObserver(doAuto);
-
-const pollingInterval = 600;
-const maxAttempts = 20;
-var tryAgain = 0;
-var doubleCheckPage = true;
-var pageType = pages.NOVIDEO;
-var player;
-var muteButton;
-var pauseButton;
-var volumeControls;
-var adPlace;
-var prepause = false;
 
 chrome.runtime.onMessage.addListener(
 	function (request, sender, sendResponse) {
@@ -53,159 +151,32 @@ chrome.runtime.onMessage.addListener(
 			pageResponse();
 		}
 	});
+	
+function findPlayers() {
+	restartObserver();
+	setTimeout(findPlayers, pollingTime);
+	pollingTime += pollingIncrease;
+}
+
+findPlayers();
 
 function pageResponse() {
-	//console.log("");
-	//console.log("Change");
-	adObserver.disconnect();
-	if (pageType = isThisAVideo()) {
-		let i = 0;
-		if (restartObserver()) return;
-		let func = () => { if (!restartObserver() && ++i < maxAttempts) setTimeout(func, 50); };
-		func();
-	}
+	pollingTime = pollingInterval;
 }
 
 function restartObserver() {
-	switch (pageType) {
-		case pages.WATCH:
-			player = document.getElementById("movie_player");
-			break;
-		case pages.CHANNEL:
-			player = document.getElementById("c4-player");
-			break;
-		default:
-			return false;
+	const playersFound = document.getElementsByClassName("html5-video-player");
+	for (let i = 0; i < playersFound.length; ++i) {
+		const p = playersFound[i];
+		if (playerFound(p)) {
+			continue;
+		}
+		try {
+			const po = new PlayerObserver(p);
+			players.push(po);
+			po.createObserver();
+			console.log("Found player");
+		} catch {}
 	}
-
-	//console.log(player);
-	if (player == null) {
-		console.log("Failed to find player");
-		return false;
-	}
-	console.log("Restarting Observer");
-	if ((adPlace = player.getElementsByClassName("video-ads")[0]) == null ||
-		(pauseButton = player.getElementsByClassName("ytp-play-button")[0]) == null ||
-		(muteButton = player.getElementsByClassName("ytp-mute-button")[0]) == null ||
-		(volumeControls = player.getElementsByClassName("ytp-volume-panel")[0]) == null) {
-		return false;
-	}
-
-	//console.log(adPlace);
-	//console.log(pauseButton);
-	//console.log(muteButton);
-	//console.log(volumeControls);
-	adObserver.observe(adPlace, {
-		attributes: false,
-		characterData: false,
-		subtree: true,
-		childList: true
-	});
-	/*adObserver.observe(player, {
-	attributes: true,
-	characterData: true,
-	subtree: false,
-	childList: false
-	});*/
-	doAuto();
 	return true;
-}
-
-function isThisAVideo() {
-	if (-1 < window.location.href.indexOf("watch?"))
-		return pages.WATCH;
-	if (-1 < window.location.href.indexOf("channel") && document.getElementById("c4-player") != null)
-		return pages.CHANNEL;
-	if (document.getElementsByClassName("html5-video-container").length)
-		return pages.UNKNOWN;
-	return pages.NOVIDEO;
-}
-
-var shouldItBeMuted = false;
-chrome.storage.local.get("shouldItBeMuted", function (result) {
-	var res = result.shouldItBeMuted;
-	if (typeof res === "undefined") {
-		shouldItBeMuted = false;
-	} else {
-		shouldItBeMuted = res;
-	}
-	//console.log(res);
-	//console.log(shouldItBeMuted);
-});
-//if(shouldItBeMuted==null) shouldItBeMuted=false;
-//console.log(shouldItBeMuted);
-
-function isMuted() {
-	return -1 < volumeControls.getAttribute("aria-valuetext").indexOf("muted");
-}
-
-function clickMuteButton() {
-	//console.log("Clicking Mute Button");
-	muteButton.click();
-	shouldItBeMuted = !shouldItBeMuted;
-	chrome.storage.local.set({
-		"shouldItBeMuted": shouldItBeMuted
-	}, function () {
-		//console.log("Local set " + shouldItBeMuted);
-	});
-}
-
-function isAdPlaying() {
-	return player.getAttribute("class").indexOf("ad-int") > -1;
-}
-
-function autoMute() {
-	if (isAdPlaying()) {
-		if (!isMuted())
-			clickMuteButton();
-	} else if (shouldItBeMuted === isMuted()) {
-		if (isMuted())
-			clickMuteButton();
-	}
-}
-
-function autoSkip() {
-	var ads = adPlace.getElementsByClassName("adDisplay");
-	if (ads.length) {
-		ads[0].remove();
-	}
-	function press(name) {
-		var b = adPlace.getElementsByClassName(name);
-		if (b.length) {
-			b[0].click();
-			return true;
-		}
-		return false;
-	}
-
-	if (press("ytp-ad-overlay-close-button"));
-	else if (press("ytp-ad-skip-button ytp-button"));
-	else if (press("videoAdUiSkipButton"));
-
-	// if (press("close-button"));
-	// else if (press("ytp-ad-close-button"));
-	// else if (press("svg-close-button"));
-}
-
-function isVideoPaused() {
-	return player.getAttribute("class").indexOf("pause") > -1;
-}
-
-function autoPause() {
-	if (isAdPlaying()) {
-		if (isVideoPaused()) {
-			if (!prepause) {
-				prepause = true;
-				clickPauseButton();
-			}
-		}
-	} else if (prepause) {
-		setTimeout(clickPauseButton, 10);
-		prepause = false;
-	}
-}
-
-function clickPauseButton() {
-	//console.log("Clicking Pause Button")
-	pauseButton.click();
 }
