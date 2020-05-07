@@ -32,9 +32,10 @@ class PlayerObserver {
 		if (!this.muteButton) {
 			throw "No play button found";
 		}
-		this.prepause = false
-		this.observer = null;
+		this.prepause = false;
+		this.observer = new MutationObserver(() => { this.autoEvents(); });
 		this.wasAdPlaying = false;
+		this.wasPaused = false;
 	}
 	isAdPlaying() {
 		return this.player.getAttribute("class").indexOf("ad-int") > -1;
@@ -82,11 +83,13 @@ class PlayerObserver {
 		const isAdPlaying = this.wasAdPlaying = this.isAdPlaying();
 		if (wasAdPlaying) {
 			if (!isAdPlaying) {
+				// console.log("auto unmuted");
 				this.unmute();
 			}
 		}
 		else if(isAdPlaying) {
-			this.mute()
+			// console.log("auto muted");
+			this.mute();
 		}
 	}
 	autoSkip() {
@@ -94,6 +97,7 @@ class PlayerObserver {
 			const b = this.ads.getElementsByClassName(name);
 			if (b.length) {
 				b[0].click();
+				// console.log("autoskipped " + name);
 				return true;
 			}
 			return false;
@@ -104,34 +108,38 @@ class PlayerObserver {
 	}
 	autoPause() {
 		if (this.isAdPlaying()) {
-			if (this.isPaused()) {
+			const wasPaused = this.wasPaused;
+			const isPaused = this.wasPaused = this.isPaused();
+			if (isPaused && !wasPaused) {
 				if (!this.prepause) {
 					this.prepause = true;
-					this.play()
+					// console.log("prepause activated");
+					this.play();
+				}
+				else {
+					this.prepause = false;
 				}
 			}
 		} else if (this.prepause) {
-			setTimeout(() => { this.pause() }, 10);
 			this.prepause = false;
+			// console.log("auto paused");
+			this.pause();
 		}
 	}
 	createObserver() {
-		const observer = this.observer = new MutationObserver(() => { this.autoEvents(); });
-		
-		observer.observe(this.ads, {
+		this.observer.observe(this.ads, {
 			attributes: false,
 			characterData: false,
 			subtree: true,
 			childList: true
 		}); 
-		observer.observer(this.player, {
+		this.observer.observe(this.player, {
 			attributes: true,
 			attributeFilter: ["class"]
 		});
 	}
 	killObserver() {
 		this.observer.disconnect();
-		this.observer = null;
 	}
 };
 
