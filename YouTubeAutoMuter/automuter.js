@@ -50,12 +50,12 @@ class PlayerObserver {
 	}
 	play() {
 		if (this.isPaused()) {
-			clickPlayButton();
+			this.clickPlayButton();
 		}
 	}
 	pause() {
 		if (!this.isPaused()) {
-			clickPlayButton();
+			this.clickPlayButton();
 		}
 	}
 	clickMuteButton() {
@@ -117,11 +117,16 @@ class PlayerObserver {
 	}
 	createObserver() {
 		const observer = this.observer = new MutationObserver(() => { this.autoEvents(); });
+		
 		observer.observe(this.ads, {
 			attributes: false,
 			characterData: false,
 			subtree: true,
 			childList: true
+		}); 
+		observer.observer(this.player, {
+			attributes: true,
+			attributeFilter: ["class"]
 		});
 	}
 	killObserver() {
