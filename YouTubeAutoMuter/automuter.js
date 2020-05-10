@@ -137,6 +137,7 @@ class PlayerObserver {
 			attributes: true,
 			attributeFilter: ["class"]
 		});
+		autoEvents();
 	}
 	killObserver() {
 		this.observer.disconnect();
