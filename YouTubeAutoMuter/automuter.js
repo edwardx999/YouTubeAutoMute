@@ -137,7 +137,7 @@ class PlayerObserver {
 			attributes: true,
 			attributeFilter: ["class"]
 		});
-		autoEvents();
+		this.autoEvents();
 	}
 	killObserver() {
 		this.observer.disconnect();
@@ -192,5 +192,4 @@ function restartObserver() {
 			console.log("Found player");
 		} catch {}
 	}
-	return true;
 }
