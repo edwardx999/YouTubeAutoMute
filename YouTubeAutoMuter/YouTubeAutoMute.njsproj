@@ -35,7 +35,6 @@
     <None Include="automuter.ts" />
     <Content Include="manifest.json" />
     <Content Include="page_change.js" />
-    <Content Include="README.md" />
     <Content Include="tsconfig.json" />
     <Content Include="package.json" />
   </ItemGroup>
