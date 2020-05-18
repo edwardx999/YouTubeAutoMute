@@ -5,3 +5,4 @@ automuter.js
 package-lock.json
 bin
 obj
+*.map
