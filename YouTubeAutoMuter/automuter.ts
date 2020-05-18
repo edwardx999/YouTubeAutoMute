@@ -17,7 +17,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 console.log("AutoMuter Loaded");
 
 interface MutationObserverConstructor {
-    new(callback: () => void): MutationObserver;
+    new(callback: MutationCallback): MutationObserver;
 }
 
 const MyMutationObserver: MutationObserverConstructor = window.MutationObserver
