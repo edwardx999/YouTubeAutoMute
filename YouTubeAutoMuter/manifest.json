@@ -34,7 +34,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 		"48": "./img/icon48.png"
 	},
 	"permissions": [
-		"storage",
 		"tabs"
 	]
 }

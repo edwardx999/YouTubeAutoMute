@@ -1,0 +1,7 @@
+node_modules
+.vs
+*.user
+automuter.js
+package-lock.json
+bin
+obj
