@@ -14,30 +14,35 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-import { OptionsMessage, VarLabel } from "./options_message";
+import { OptionsMessage, VarLabel, Storable } from "./options_message";
 import { PageChangeAlert } from "./page_change_message";
 import { StorageName, getAllOptions } from "./options_storage";
 
 console.log("AutoMuter Loaded");
 
-interface MutationObserverConstructor {
-    new(callback: MutationCallback): MutationObserver;
-}
+type MutationObserverConstructor = typeof window.MutationObserver;
 
 const MyMutationObserver: MutationObserverConstructor = window.MutationObserver
 // @ts-ignore
     || window.WebKitMutationObserver;
 
+function coerceStoredValue(value: any): boolean {
+    if (value === undefined) {
+        return true;
+    }
+    return Boolean(value);
+}
+
 class PlayerObserver {
-    static options: any[];
+    static options: Storable[];
     static initializeOptions(callback: () => any): void {
         getAllOptions((options) => {
             if (options) {
                 console.log(options);
                 PlayerObserver.options = new Array<any>(VarLabel.MAX);
-                PlayerObserver.options[VarLabel.AutoMute] = Boolean(options![StorageName.AutoMute]);
-                PlayerObserver.options[VarLabel.AutoSkip] = Boolean(options![StorageName.AutoSkip]);
-                PlayerObserver.options[VarLabel.Prepause] = Boolean(options![StorageName.Prepause]);
+                PlayerObserver.options[VarLabel.AutoMute] = coerceStoredValue(options![StorageName.AutoMute]);
+                PlayerObserver.options[VarLabel.AutoSkip] = coerceStoredValue(options![StorageName.AutoSkip]);
+                PlayerObserver.options[VarLabel.Prepause] = coerceStoredValue(options![StorageName.Prepause]);
             }
             PlayerObserver.options = [true, true, true];
             callback();

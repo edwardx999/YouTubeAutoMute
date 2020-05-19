@@ -31,7 +31,6 @@ function assignValue(el: HTMLInputElement, options: StorageUnit, key: StorageNam
     else {
         el.checked = Boolean(value);
     }
-    el.innerText = value+"";
 }
 
 function callback(options: StorageUnit | undefined): void {
