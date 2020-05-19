@@ -15,16 +15,16 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 export enum VarLabel {
-    FIRST,
-    AutoMute = FIRST,
-    Prepause,
-    AutoSkip,
-    MAX
+	FIRST,
+	AutoMute = FIRST,
+	Prepause,
+	AutoSkip,
+	MAX
 }
 
 export type Storable = number | boolean | string | Date | Storable[];
 
 export interface OptionsMessage {
-    ["automuteVar"]: VarLabel;
-    ["value"]: Storable;
+	["automuteVar"]: VarLabel;
+	["value"]: Storable;
 }

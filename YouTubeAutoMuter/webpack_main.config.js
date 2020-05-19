@@ -17,9 +17,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 const path = require("path");
 
 module.exports = {
-    entry: "./intermediate_build/automuter_main.js",
-    output: {
-        path: path.resolve(__dirname, "./extension"),
-        filename: "automuter.js"
-    }
+	entry: "./intermediate_build/automuter_main.js",
+	output: {
+		path: path.resolve(__dirname, "./extension"),
+		filename: "automuter.js"
+	}
 };
