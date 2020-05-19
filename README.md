@@ -1,13 +1,12 @@
 # YouTubeAutoMute
 Automatically mutes and skips YouTube ads <br />
-Will also allow prepausing videos during the ads, meaning if you pause an ad, the ad will keep playing and the video will pause when it loads in <br />
+Also allows prepausing videos during the ads, meaning if you pause an ad, the ad will keep playing and the video will pause when it loads in. <br />
 
 ## Building
-
-Run build.bat (Windows) or make in the YouTubeAutoMuter folder.
+Run make in the YouTubeAutoMuter folder.
 
 ## Installing
-Load the YouTubeAutoMuter folder as an unpacked extension into Chrome to use <br />
+Load the extension folder in YouTubeAutoMuter as an unpacked extension into Chrome. <br />
 
 ### License
 Copyright(C) 2017-2020 Edward Xie
