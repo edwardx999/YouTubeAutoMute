@@ -16,7 +16,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 import { Storable } from "./options_message";
 
-export enum StorageName {
+export const enum StorageName {
 	AutoMute = "automuteautomute",
 	Prepause = "automuteprepause",
 	AutoSkip = "automuteautoskip"
