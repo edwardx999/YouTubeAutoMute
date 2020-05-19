@@ -8,3 +8,4 @@ obj
 intermediate_build
 build_status
 *.map
+extension/*.*
