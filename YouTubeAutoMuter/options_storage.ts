@@ -30,7 +30,7 @@ export function storeOptions(storage: StorageUnit) {
 	chrome.storage.local.set(storage);
 }
 
-type GetStorageCallback = (items: undefined | StorageUnit) => void;
+export type GetStorageCallback = (items: undefined | StorageUnit) => void;
 
 export function getOptions(names: StorageName | StorageName[], callback?: GetStorageCallback): void {
 	chrome.storage.local.get(names, callback);
