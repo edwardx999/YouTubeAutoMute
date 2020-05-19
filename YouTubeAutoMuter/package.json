@@ -5,13 +5,22 @@
   "author": {
     "name": "Edward Xie"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/edwardx999/YouTubeAutoMute"
+  },
+  "license": "GPL-3.0",
   "scripts": {
-    "build": "tsc --build",
-    "clean": "tsc --build --clean"
+    "build": "make build",
+    "clean": "make clean"
   },
   "devDependencies": {
-    "@types/node": "^8.0.14",
     "@types/chrome": "0.0.35",
-    "typescript": "^3.2.2"
+    "@types/node": "^8.0.14",
+    "typescript": "^3.2.2",
+    "webpack-cli": "^3.3.11"
+  },
+  "dependencies": {
+    "webpack": "^4.43.0"
   }
 }

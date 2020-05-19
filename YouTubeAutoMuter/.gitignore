@@ -5,4 +5,6 @@ automuter.js
 package-lock.json
 bin
 obj
+intermediate_build
+build_status
 *.map

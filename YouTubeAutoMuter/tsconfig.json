@@ -3,7 +3,8 @@
     "module": "commonjs",
     "target": "es6",
     "lib": [ "es6", "DOM" ],
-    "sourceMap": true
+    "sourceMap": false,
+    "outDir": "intermediate_build"
   },
   "exclude": [
     "node_modules"

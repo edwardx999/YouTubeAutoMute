@@ -1,5 +1,5 @@
 /*
-Copyright(C) 2019 Edward Xie
+Copyright(C) 2019-2020 Edward Xie
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -14,11 +14,13 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
+import { PageChangeAlert } from "./page_change_message";
+
 chrome.tabs.onUpdated.addListener(
 	(tabId, changeInfo) => {
 		if (changeInfo.status === "complete") {
 			console.log("Sending message");
-			chrome.tabs.sendMessage(tabId, "automutepageupdate")
+			chrome.tabs.sendMessage(tabId, PageChangeAlert.PageChange)
 		}
 	}
 );

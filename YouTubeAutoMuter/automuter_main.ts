@@ -14,6 +14,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
+import { OptionsMessage, VarLabel } from "./options_message";
+import { PageChangeAlert } from "./page_change_message";
+import { StorageName, getAllOptions } from "./options_storage";
+
 console.log("AutoMuter Loaded");
 
 interface MutationObserverConstructor {
@@ -25,6 +29,20 @@ const MyMutationObserver: MutationObserverConstructor = window.MutationObserver
     || window.WebKitMutationObserver;
 
 class PlayerObserver {
+    static options: any[];
+    static initializeOptions(callback: () => any): void {
+        getAllOptions((options) => {
+            if (options) {
+                console.log(options);
+                PlayerObserver.options = new Array<any>(VarLabel.MAX);
+                PlayerObserver.options[VarLabel.AutoMute] = Boolean(options![StorageName.AutoMute]);
+                PlayerObserver.options[VarLabel.AutoSkip] = Boolean(options![StorageName.AutoSkip]);
+                PlayerObserver.options[VarLabel.Prepause] = Boolean(options![StorageName.Prepause]);
+            }
+            PlayerObserver.options = [true, true, true];
+            callback();
+        });
+    }
     player: Element;
     ads: Element;
     muteButton: HTMLElement;
@@ -89,9 +107,19 @@ class PlayerObserver {
     }
     autoEvents(): void {
         console.log("Event detected");
-        this.autoMute();
-        this.autoSkip();
-        this.autoPause();
+        const options = PlayerObserver.options;
+        if (options[VarLabel.AutoMute]) {
+            this.autoMute();
+        }
+        if (options[VarLabel.Prepause]) {
+            this.autoPause();
+        }
+        else {
+            this.prepause = false;
+        }
+        if (options[VarLabel.AutoSkip]) {
+            this.autoSkip();
+        }
     }
     autoMute(): void {
         const wasAdPlaying = this.wasAdPlaying;
@@ -199,12 +227,23 @@ function restartObserver(): void {
     }
 }
 
-chrome.runtime.onMessage.addListener(
-    (request: any) => {
-        if (request === "automutepageupdate") {
-            console.log("page update");
-            pageResponse();
-        }
-    });
-
-findPlayers();
+PlayerObserver.initializeOptions(() => {
+    chrome.runtime.onMessage.addListener(
+        (request) => {
+            if (request === PageChangeAlert.PageChange) {
+                console.log("page update");
+                pageResponse();
+            }
+            const optionsRequest = <OptionsMessage>request;
+            const varLabel = optionsRequest.automuteVar;
+            if (varLabel >= VarLabel.FIRST && varLabel < VarLabel.MAX) {
+                console.log(optionsRequest);
+                PlayerObserver.options[varLabel] = optionsRequest.value;
+                for (const observer of players) {
+                    observer.autoEvents();
+                }
+            }
+            return true;
+        });
+    findPlayers();
+});

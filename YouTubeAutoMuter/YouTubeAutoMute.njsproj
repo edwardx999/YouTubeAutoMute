@@ -13,7 +13,7 @@
     <ProjectGuid>8c8a8017-c6ef-4d41-a25c-f2d2eade2d21</ProjectGuid>
     <ProjectHome>
     </ProjectHome>
-    <StartupFile>automuter.ts</StartupFile>
+    <StartupFile>automuter_main.ts</StartupFile>
     <StartWebBrowser>True</StartWebBrowser>
     <SearchPath>
     </SearchPath>
@@ -32,11 +32,39 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="automuter.ts" />
+    <Content Include="webpack_main.config.js">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="webpack_options.config.js">
+      <SubType>Code</SubType>
+    </Content>
+    <None Include="automuter_main.ts" />
     <Content Include="manifest.json" />
-    <Content Include="page_change.js" />
+    <Content Include="options.html">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="tsconfig.json" />
     <Content Include="package.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptCompile Include="options_main.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="options_message.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="options_storage.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="page_change_main.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="page_change_message.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="webpack_page_change.config.js">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsToolsV2.targets" />
   <ProjectExtensions>
