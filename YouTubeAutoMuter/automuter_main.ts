@@ -239,13 +239,15 @@ PlayerObserver.initializeOptions(() => {
                 console.log("page update");
                 pageResponse();
             }
-            const optionsRequest = <OptionsMessage>request;
-            const varLabel = optionsRequest.automuteVar;
-            if (varLabel >= VarLabel.FIRST && varLabel < VarLabel.MAX) {
-                console.log(optionsRequest);
-                PlayerObserver.options[varLabel] = optionsRequest.value;
-                for (const observer of players) {
-                    observer.autoEvents();
+            if (request) {
+                const optionsRequest = <OptionsMessage>request;
+                const varLabel = optionsRequest.automuteVar;
+                if (varLabel >= VarLabel.FIRST && varLabel < VarLabel.MAX) {
+                    console.log(optionsRequest);
+                    PlayerObserver.options[varLabel] = optionsRequest.value;
+                    for (const observer of players) {
+                        observer.autoEvents();
+                    }
                 }
             }
             return true;
