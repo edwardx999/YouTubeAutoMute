@@ -5,6 +5,8 @@ Also allows prepausing videos during the ads, meaning if you pause an ad, the ad
 ## Dependencies
 npm
 
+make
+
 Run `npm install` in the YouTubeAutoMuter folder.
 
 ## Building
