@@ -16,7 +16,6 @@
 	},
 	"devDependencies": {
 		"@types/chrome": "0.0.35",
-		"@types/node": "^8.0.14",
 		"typescript": "^3.2.2",
 		"webpack-cli": "^3.3.11"
 	},

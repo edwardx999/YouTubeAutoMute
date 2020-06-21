@@ -72,8 +72,8 @@ class PlayerObserver {
 		}
 		this.prepause = false;
 		this.observer = new MyMutationObserver(() => { this.autoEvents(); });
-		this.wasAdPlaying = false;
-		this.wasPaused = false;
+		this.wasAdPlaying = !this.isAdPlaying(); // force edge trigger
+		this.wasPaused = this.isPaused();
 	}
 	isAdPlaying(): boolean {
 		return this.player.getAttribute("class").indexOf("ad-int") > -1;
@@ -193,6 +193,7 @@ class PlayerObserver {
 const pollingInterval = 50;
 const pollingIncrease = 40;
 let pollingTime = pollingInterval;
+let pollerHandler: ReturnType<typeof setTimeout>;
 const maxAttempts = 100;
 let players: PlayerObserver[] = [];
 
@@ -208,12 +209,14 @@ function playerFound(player: Element): boolean {
 
 function findPlayers(): void {
 	restartObserver();
-	setTimeout(findPlayers, pollingTime);
+	pollerHandler = setTimeout(findPlayers, pollingTime);
 	pollingTime += pollingIncrease;
 }
 
 function pageResponse(): void {
 	pollingTime = pollingInterval;
+	clearTimeout(pollerHandler);
+	findPlayers();
 }
 
 function restartObserver(): void {
